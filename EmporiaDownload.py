@@ -8,7 +8,7 @@ def main(argv):
     datahome= argv[0] if len(argv)==1 else "/home/jbf/data/emporia/"
     print('datahome='+datahome)
     
-    vue = PyEmVue()
+    vue = PyEmVue() 
     vue.login(username='', password='', token_storage_file='/home/jbf/tmp/keys.json')
 
     t2= datetime.utcnow()
