@@ -6,17 +6,17 @@ import sys
 def main(argv):
     
     datahome= argv[0] if len(argv)==1 else "/home/jbf/data/emporia/"
-    print('datahome='+datahome)
+    print('datahome='+datahome,file=sys.stderr)
     
     vue = PyEmVue() 
     vue.login(username='', password='', token_storage_file='/home/jbf/tmp/keys.json')
 
     t2= datetime.utcnow()
-    print('utcnow='+str(t2))
+    print( "utcnow="+str(t2),file=sys.stderr )
     
     sinceHour= timedelta( minutes=t2.minute, seconds=t2.second, microseconds=t2.microsecond )
     t2= t2 - sinceHour
-    print('t2='+str(t2))
+    print( 't2='+str(t2),file=sys.stderr )
     t1= t2 - timedelta(hours=1)
 
     path= t1.strftime( datahome + '%Y/%m/%d/' )
@@ -37,7 +37,7 @@ def main(argv):
             w.write(',')
             w.write( '%s(kW/h)' % ch.name )
         except:
-            print('**** Bad start')
+            print('**** Bad start',file=sys.stderr)
             stop
     w.write('\n')
 
