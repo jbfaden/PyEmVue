@@ -3,33 +3,9 @@ from datetime import timedelta
 from pyemvue.pyemvue import PyEmVue
 import sys
 
-def main(argv):
-    
-    datahome = argv[0] if len(argv) == 1 else "/home/jbf/data/emporia/"
-    print('datahome=' + datahome, file=sys.stderr)
-    
-    vue = PyEmVue() 
-    vue.login(username='', password='', token_storage_file='/home/jbf/tmp/keys.json')
-
-    t2 = datetime.utcnow()
-    print('utcnow=' + str(t2), file=sys.stderr)
-    
-    sinceHour = timedelta(minutes=t2.minute, seconds=t2.second, microseconds=t2.microsecond)
-    t2 = t2 - sinceHour
-    print('t2=' + str(t2), file=sys.stderr)
-    t1 = t2 - timedelta(hours=1)
-
-    path = t1.strftime(datahome + '%Y/%m/%d/')
-    fln = path + t1.strftime('%Y%m%dT%H.csv')
-
-    import os
-    if not os.path.exists(path):
-        os.makedirs(path)
-
+def collectChannel( vue, device, t1, t2, fln ):
+    'Request the data from the API and write it to the file'
     w = open(fln, 'w')
-
-    devices = vue.get_devices()
-    device = devices[-1]
 
     w.write("UT")
     for ch in device.channels:
@@ -57,6 +33,38 @@ def main(argv):
             else:
                 w.write(',%f' % (d * 3600))
         w.write('\n')
+    
+def main(argv):
+    
+    datahome = argv[0] if len(argv) == 1 else "/tmp/emporia/"
+    print('datahome=' + datahome, file=sys.stderr)
+    
+    vue = PyEmVue() 
+    vue.login(username='', password='', token_storage_file='/home/jbf/tmp/keys.json')
+
+    t2 = datetime.utcnow()
+    print('utcnow=' + str(t2), file=sys.stderr)
+    
+    sinceHour = timedelta(minutes=t2.minute, seconds=t2.second, microseconds=t2.microsecond)
+    t2 = t2 - sinceHour
+    print('t2=' + str(t2), file=sys.stderr)
+    t1 = t2 - timedelta(hours=1)
+
+    path = t1.strftime(datahome + '%Y/%m/%d/')
+
+    import os
+    if not os.path.exists(path):
+        os.makedirs(path)
+
+    devices = vue.get_devices()
+
+    fln = path + t1.strftime('%Y%m%dT%H.csv')
+    device = devices[-1]
+    collectChannel( vue, device, t1, t2, fln )
+
+    fln = path + t1.strftime('%Y%m%dT%H_all.csv')
+    device = devices[0]
+    collectChannel( vue, device, t1, t2, fln )
 
 if __name__ == "__main__":
     main( sys.argv[1:] )
